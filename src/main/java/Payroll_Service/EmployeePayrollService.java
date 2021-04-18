@@ -1,16 +1,12 @@
 package Payroll_Service;
 
 import java.util.List;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 public class EmployeePayrollService {
 	public enum IOService {CONSOLE_IO, FILE_IO, DB_IO,REST_IO}
 	
 	private List<EmployeePayrollData> employeePayrollList;
-    private EmployeePayrollDBService employeePayrollDBService;
+    private final EmployeePayrollDBService employeePayrollDBService;
 	
     public EmployeePayrollService() {
 		 employeePayrollDBService = EmployeePayrollDBService.getInstance();
@@ -29,6 +25,7 @@ public class EmployeePayrollService {
 		 
 		   public boolean checkEmployeePayrollInSyncWithDB(String name) {
 		        List<EmployeePayrollData> employeePayrollDataList = employeePayrollDBService.getEmployeePayrollData(name);
+		        double salary = 3000000.0;
 		        return employeePayrollDataList.get(0).equals(getEmployeePayrollData(name));
 		    }
 		   
@@ -37,9 +34,15 @@ public class EmployeePayrollService {
 		        if (result == 0) return;
 		        EmployeePayrollData employeePayrollData = this.getEmployeePayrollData(name);
 		        if (employeePayrollData != null)
-		            EmployeePayrollData.salary = salary;
+		            employeePayrollData.salary = salary;
 		    }
-		   
+		   public void updateEmployeeSalaryWithPreparedStatement(String name, Double salary){
+		        int result = employeePayrollDBService.updateEmployeeDataUsingPreparedStatement(name, salary);
+		        if (result == 0) return;
+		        EmployeePayrollData employeePayrollData = this.getEmployeePayrollData(name);
+		        if (employeePayrollData != null)
+		            employeePayrollData.salary = salary;
+		    }
 		   private EmployeePayrollData getEmployeePayrollData(String name) {
 		        return this.employeePayrollList.stream().filter(employeePayrollDataItem -> employeePayrollDataItem.name.equals(name)).findFirst().orElse(null);
 		    }
